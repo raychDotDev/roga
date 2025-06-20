@@ -26,15 +26,15 @@ static const GameConfiguration CONFIG_DEFAULT = {
     .maximized = 0,
 };
 
-char *Config_getUserSavesDir();
+const char *Config_getUserConfigDir();
+
+const char* Config_getConfigPath();
 
 static const int CONFIG_MEMBER_COUNT = 5;
 
 extern GameConfiguration CONFIG;
 
 static const size_t CONFIG_MAX_SYMBOLS = 512;
-
-static const char *CONFIG_PATH = "./.rogaconfig";
 
 char *Config_toCString(GameConfiguration config, size_t *size);
 void Config_Save();

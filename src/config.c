@@ -3,29 +3,41 @@
 
 GameConfiguration CONFIG = CONFIG_DEFAULT;
 
+const char *Config_getConfigPath() {
+    const char *dir = Config_getUserConfigDir();
+    char *relativeConfig = ".rogaconfig";
+    return TextFormat("%s%s", dir, relativeConfig);
+}
+
+const char *Config_getUserConfigDir() {
+    char *env = getenv("USERPROFILE");
+    return TextFormat("%s%s", env, "\\Documents\\My Games\\roga\\");
+}
+
 char *Config_toCString(GameConfiguration config, size_t *size) {
     size_t bufferSize = CONFIG_MAX_SYMBOLS * sizeof(char);
     char *buffer = (char *)MemAlloc(bufferSize);
 
-    sprintf_s(buffer, bufferSize, "%s\n%d\n%d\n%d\n%d\n",
-              config.title, config.window_width, config.window_height,
-              config.targetFPS, config.maximized);
+    sprintf_s(buffer, bufferSize, "%s\n%d\n%d\n%d\n%d\n", config.title,
+              config.window_width, config.window_height, config.targetFPS,
+              config.maximized);
     return buffer;
 }
 
 void Config_Save() {
     size_t size;
     char *conf = Config_toCString(CONFIG, &size);
-    SaveFileText(CONFIG_PATH, conf);
+    const char *path = Config_getConfigPath();
+    SaveFileText(path, conf);
     MemFree(conf);
 }
 
 void Config_Parse() {
     size_t bufferSize = CONFIG_MAX_SYMBOLS * sizeof(char);
     char *buffer = (char *)MemAlloc(bufferSize);
-
-    if (FileExists(CONFIG_PATH)) {
-        strcpy(buffer, LoadFileText(CONFIG_PATH));
+    const char *path = Config_getConfigPath();
+    if (FileExists(path)) {
+        strcpy(buffer, LoadFileText(path));
     } else {
         CONFIG = CONFIG_DEFAULT;
         return;
@@ -50,11 +62,4 @@ void Config_Parse() {
     MemFree(buffer);
 
     CONFIG = conf;
-}
-
-char* Config_getUserSavesDir() {
-    char *env = getenv("USERPROFILE");
-	int pos = TextLength(env);
-    TextAppend(env, "\\Documents\\My Games\\roga\\", &pos);
-    return env;
 }

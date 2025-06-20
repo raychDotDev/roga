@@ -17,7 +17,7 @@ void Game_Init() {
     SetWindowTitle(CONFIG.title);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(CONFIG.targetFPS);
-	char* saves_path = Config_getUserSavesDir();
+	const char* saves_path = Config_getUserConfigDir();
 	MakeDirectory(saves_path);
     if (CONFIG.maximized) {
         MaximizeWindow();
