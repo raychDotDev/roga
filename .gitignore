@@ -6,3 +6,4 @@ TODO.txt
 compile_commands.json
 /lib/*.*
 .rogaconfig
+/*.png
