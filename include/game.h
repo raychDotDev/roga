@@ -1,15 +1,11 @@
 #pragma once
 
-void init();
+void Game_Init();
 
-void run();
-void draw();
-void update();
+void Game_Run();
+void Game_Draw();
+void Game_Update();
 
-void stop();
+void Game_Stop();
 
-void toggle_borderless();
-
-void toggle_maximized();
-
-void toggle_fullscreen();
+void Game_toggleMaximized();

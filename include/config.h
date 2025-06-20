@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct GameConfiguration {
@@ -25,6 +26,8 @@ static const GameConfiguration CONFIG_DEFAULT = {
     .maximized = 0,
 };
 
+char *Config_getUserSavesDir();
+
 static const int CONFIG_MEMBER_COUNT = 5;
 
 extern GameConfiguration CONFIG;
@@ -33,6 +36,6 @@ static const size_t CONFIG_MAX_SYMBOLS = 512;
 
 static const char *CONFIG_PATH = "./.rogaconfig";
 
-char *config_tocstring(GameConfiguration config, size_t *size);
-void config_save();
-void config_parse();
+char *Config_toCString(GameConfiguration config, size_t *size);
+void Config_Save();
+void Config_Parse();

@@ -1,27 +1,28 @@
 #include "config.h"
+#include <raylib.h>
 
 GameConfiguration CONFIG = CONFIG_DEFAULT;
 
-char *config_tocstring(GameConfiguration config, size_t *size) {
-    size_t buffersize = CONFIG_MAX_SYMBOLS * sizeof(char);
-    char *buffer = (char *)MemAlloc(buffersize);
+char *Config_toCString(GameConfiguration config, size_t *size) {
+    size_t bufferSize = CONFIG_MAX_SYMBOLS * sizeof(char);
+    char *buffer = (char *)MemAlloc(bufferSize);
 
-    sprintf_s(buffer, buffersize, "%s\n%d\n%d\n%d\n%d\n",
+    sprintf_s(buffer, bufferSize, "%s\n%d\n%d\n%d\n%d\n",
               config.title, config.window_width, config.window_height,
               config.targetFPS, config.maximized);
     return buffer;
 }
 
-void config_save() {
+void Config_Save() {
     size_t size;
-    char *conf = config_tocstring(CONFIG, &size);
+    char *conf = Config_toCString(CONFIG, &size);
     SaveFileText(CONFIG_PATH, conf);
     MemFree(conf);
 }
 
-void config_parse() {
-    size_t buffersize = CONFIG_MAX_SYMBOLS * sizeof(char);
-    char *buffer = (char *)MemAlloc(buffersize);
+void Config_Parse() {
+    size_t bufferSize = CONFIG_MAX_SYMBOLS * sizeof(char);
+    char *buffer = (char *)MemAlloc(bufferSize);
 
     if (FileExists(CONFIG_PATH)) {
         strcpy(buffer, LoadFileText(CONFIG_PATH));
@@ -49,4 +50,11 @@ void config_parse() {
     MemFree(buffer);
 
     CONFIG = conf;
+}
+
+char* Config_getUserSavesDir() {
+    char *env = getenv("USERPROFILE");
+	int pos = TextLength(env);
+    TextAppend(env, "\\Documents\\My Games\\roga\\", &pos);
+    return env;
 }
