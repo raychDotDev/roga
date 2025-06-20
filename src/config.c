@@ -19,7 +19,7 @@ char *Config_toCString(GameConfiguration config, size_t *size) {
     char *buffer = (char *)MemAlloc(bufferSize);
 
     sprintf_s(buffer, bufferSize, "%s\n%d\n%d\n%d\n%d\n", config.title,
-              config.window_width, config.window_height, config.targetFPS,
+              config.windowWidth, config.windowHeight, config.targetFPS,
               config.maximized);
     return buffer;
 }
@@ -54,8 +54,8 @@ void Config_Parse() {
     GameConfiguration conf = {};
 
     TextCopy(conf.title, parsed[0]);
-    conf.window_width = TextToInteger(parsed[1]);
-    conf.window_height = TextToInteger(parsed[2]);
+    conf.windowWidth = TextToInteger(parsed[1]);
+    conf.windowHeight = TextToInteger(parsed[2]);
     conf.targetFPS = TextToInteger(parsed[3]);
     conf.maximized = TextToInteger(parsed[4]);
 

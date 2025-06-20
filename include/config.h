@@ -9,8 +9,8 @@
 typedef struct GameConfiguration {
     char title[64];
 
-    int window_width;
-    int window_height;
+    int windowWidth;
+    int windowHeight;
 
     int targetFPS;
 
@@ -20,8 +20,8 @@ typedef struct GameConfiguration {
 
 static const GameConfiguration CONFIG_DEFAULT = {
     .title = "Game",
-    .window_width = 720,
-    .window_height = 480,
+    .windowWidth = 720,
+    .windowHeight = 480,
     .targetFPS = 120,
     .maximized = 0,
 };

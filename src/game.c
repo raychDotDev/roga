@@ -13,12 +13,17 @@ void Game_Init() {
     InitWindow(640, 320, "game");
     Config_Parse();
     Config_Save();
-    SetWindowSize(CONFIG.window_width, CONFIG.window_height);
+    SetWindowSize(CONFIG.windowWidth, CONFIG.windowHeight);
+    int sw = GetMonitorWidth(GetCurrentMonitor());
+    int sh = GetMonitorHeight(GetCurrentMonitor());
+    SetWindowPosition(sw / 2 - CONFIG.windowWidth / 2,
+                      sh / 2 - CONFIG.windowHeight / 2);
     SetWindowTitle(CONFIG.title);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(CONFIG.targetFPS);
-	const char* saves_path = Config_getUserConfigDir();
-	MakeDirectory(saves_path);
+    SetWindowMinSize(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight);
+    const char *saves_path = Config_getUserConfigDir();
+    MakeDirectory(saves_path);
     if (CONFIG.maximized) {
         MaximizeWindow();
     }
@@ -56,10 +61,14 @@ void Game_Update() {
             GetScreenHeight() != prevWindowHeight) {
             prevWindowWidth = GetScreenWidth();
             prevWindowHeight = GetScreenHeight();
-            CONFIG.window_width = prevWindowWidth;
-            CONFIG.window_height = prevWindowHeight;
+            CONFIG.windowWidth = prevWindowWidth;
+            CONFIG.windowHeight = prevWindowHeight;
         }
     }
+    if (CONFIG.windowWidth != GetScreenWidth())
+        CONFIG.windowWidth = GetScreenWidth();
+    if (CONFIG.windowHeight != GetScreenHeight())
+        CONFIG.windowHeight = GetScreenHeight();
 }
 
 void Game_Stop() { running = 0; }
