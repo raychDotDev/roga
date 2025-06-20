@@ -2,4 +2,7 @@
 /obj/
 /lib/SDL2/
 /.cache/
+TODO.txt
 compile_commands.json
+/lib/*.*
+.rogaconfig

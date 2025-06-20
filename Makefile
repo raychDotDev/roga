@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-g -Wall -Werror -Wno-implicit-function-declaration --target=x86_64-w64-mingw32 -Iinclude #-mwindows
+CFLAGS=-g -Wall -Werror -Wno-implicit-function-declaration --target=x86_64-w64-mingw32 -Iinclude -static #-mwindows
 
 LDFLAGS=-Iinclude -Llib -lraylib -lgdi32 -lopengl32 -lwinmm
 TARGET=game
