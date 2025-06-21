@@ -1,5 +1,7 @@
 #include "game.h"
+#include "assetLoader.h"
 #include "config.h"
+#include "gui.h"
 #include <raylib.h>
 
 int prevWindowWidth;
@@ -31,6 +33,7 @@ void Game_Init() {
         MaximizeWindow();
     }
     SetExitKey(KEY_NULL);
+    SetTraceLogLevel(LOG_ALL);
 }
 
 void Game_toggleMaximized() {
@@ -52,7 +55,9 @@ void Game_Run() {
     CloseWindow();
 }
 
-void Game_Draw() { DrawFPS(10, 10); }
+void Game_Draw() {
+    DrawTextEx(RES_FONT, "HARRO", (Vector2){10, 10}, 20, 2, WHITE);
+}
 
 void Game_Update() {
     if ((!maximized && IsWindowMaximized()) ||
