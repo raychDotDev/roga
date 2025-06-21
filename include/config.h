@@ -18,6 +18,7 @@ typedef struct GameConfiguration {
 
 } GameConfiguration;
 
+// Default game configuration
 static const GameConfiguration CONFIG_DEFAULT = {
     .title = "Game",
     .windowWidth = 720,
@@ -26,16 +27,25 @@ static const GameConfiguration CONFIG_DEFAULT = {
     .maximized = 0,
 };
 
+// %USERPROFILE%/Documents/roga
 const char *Config_getUserConfigDir();
 
+// %USERPROFILE%/Documents/roga/.rogaconfig
 const char* Config_getConfigPath();
 
+// GameConfiguration struct member count
 static const int CONFIG_MEMBER_COUNT = 5;
 
+// Global configuration
 extern GameConfiguration CONFIG;
 
+// Max simbols for .rogaconfig
 static const size_t CONFIG_MAX_SYMBOLS = 512;
 
-char *Config_toCString(GameConfiguration config, size_t *size);
+// Writes global configuration into .rogaconfig file
 void Config_Save();
+
+// Reads config file from user config dir 
+// and sets global configuration to it's value.
+// If there's no such file, returns CONFIG_DEFAULT.
 void Config_Parse();

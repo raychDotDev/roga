@@ -9,6 +9,9 @@ int maximized = 0;
 
 int running = 1;
 
+void Game_Draw();
+void Game_Update();
+
 void Game_Init() {
     InitWindow(640, 320, "game");
     Config_Parse();
