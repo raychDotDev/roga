@@ -65,10 +65,6 @@ void Game_Update() {
             CONFIG.windowHeight = prevWindowHeight;
         }
     }
-    if (CONFIG.windowWidth != GetScreenWidth())
-        CONFIG.windowWidth = GetScreenWidth();
-    if (CONFIG.windowHeight != GetScreenHeight())
-        CONFIG.windowHeight = GetScreenHeight();
 }
 
 void Game_Stop() { running = 0; }
