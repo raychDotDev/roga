@@ -34,14 +34,14 @@ void Game_init() {
     SetWindowPosition(sw / 2 - CONFIG.windowWidth / 2,
                       sh / 2 - CONFIG.windowHeight / 2);
     SetWindowTitle(CONFIG.title);
-    SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(CONFIG.targetFPS);
     SetWindowMinSize(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight);
     if (CONFIG.maximized) {
         MaximizeWindow();
     }
     SetExitKey(KEY_NULL);
-    SetTraceLogLevel(LOG_ALL);
+    SetTraceLogLevel(LOG_TRACE & LOG_ERROR);
     preGameLoop();
 }
 
@@ -54,13 +54,15 @@ void preGameLoop() {
     canvas = LoadRenderTexture(CONFIG_DEFAULT.windowWidth,
                                CONFIG_DEFAULT.windowHeight);
     SetTextureFilter(canvas.texture, TEXTURE_FILTER_POINT);
-    ResourceLoader_LoadFont();
+    ResourceLoader_loadFont();
+    ResourceLoader_loadTextures();
 }
 
 void postGameLoop() {
     Game_setCurrentScreen(NULL);
     Config_Save();
-    ResourceLoader_UnloadFont();
+    ResourceLoader_unloadFont();
+    ResourceLoader_unloadTextures();
     UnloadRenderTexture(canvas);
 }
 

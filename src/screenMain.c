@@ -1,4 +1,5 @@
 #include "screenMain.h"
+#include "assetLoader.h"
 #include "config.h"
 #include "game.h"
 #include "gui.h"
@@ -49,7 +50,7 @@ void ScreenMain_draw() {
 }
 
 void ScreenMain_update() {
-	if (IsKeyPressed(KEY_SPACE)) {
-		Game_setCurrentScreen(ScreenGame_get());
-	}
+    if (IsKeyPressed(KEY_SPACE)) {
+        Game_setCurrentScreen(ScreenGame_get());
+    }
 }
