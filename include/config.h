@@ -15,13 +15,12 @@ typedef struct GameConfiguration {
     int targetFPS;
 
     int maximized;
-
 } GameConfiguration;
 
 // Default game configuration
 static const GameConfiguration CONFIG_DEFAULT = {
     .title = "Game",
-    .windowWidth = 720,
+    .windowWidth = 640,
     .windowHeight = 480,
     .targetFPS = 120,
     .maximized = 0,

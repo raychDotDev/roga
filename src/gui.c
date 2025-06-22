@@ -38,11 +38,10 @@ void GUI_Button(GuiButton *button, Vector2 mousePosition) {
         button->released = 0;
     }
 
-    int textSize = MeasureText(button->text, button->fontSize);
-    int textposX =
-        button->position.x + button->size.x / 2.f - (float)textSize / 2.f;
-    int textposY =
-        button->position.y + button->size.y / 2.f - button->fontSize / 2.f;
+    Vector2 textSize =
+        MeasureTextEx(RES_FONT, button->text, button->fontSize, 0);
+    int textposX = button->position.x + button->size.x / 2.f - textSize.x / 2.f;
+    int textposY = button->position.y + button->size.y / 2.f - textSize.y / 2.f;
     if (button->up) {
         DrawRectangle(bounds.x, bounds.y, bounds.width, bounds.height,
                       button->activeColor);

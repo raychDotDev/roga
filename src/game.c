@@ -3,6 +3,9 @@
 #include "config.h"
 #include "screen.h"
 #include <raylib.h>
+#include <raymath.h>
+
+RenderTexture canvas;
 
 Screen *currentScreen = NULL;
 
@@ -31,7 +34,7 @@ void Game_init() {
     SetWindowPosition(sw / 2 - CONFIG.windowWidth / 2,
                       sh / 2 - CONFIG.windowHeight / 2);
     SetWindowTitle(CONFIG.title);
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
     SetTargetFPS(CONFIG.targetFPS);
     SetWindowMinSize(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight);
     if (CONFIG.maximized) {
@@ -47,27 +50,64 @@ void Game_toggleMaximized() {
     CONFIG.maximized = maximized;
 }
 
-void Game_run() {
-    while (running && !WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        {
-            Game_draw();
-        }
-        EndDrawing();
-        Game_update();
-    }
-    postGameLoop();
-
-    CloseWindow();
+void preGameLoop() {
+    canvas = LoadRenderTexture(CONFIG_DEFAULT.windowWidth,
+                               CONFIG_DEFAULT.windowHeight);
+    SetTextureFilter(canvas.texture, TEXTURE_FILTER_POINT);
+    ResourceLoader_LoadFont();
 }
-
-void preGameLoop() { ResourceLoader_LoadFont(); }
 
 void postGameLoop() {
     Game_setCurrentScreen(NULL);
     Config_Save();
     ResourceLoader_UnloadFont();
+    UnloadRenderTexture(canvas);
+}
+
+Rectangle dest = {};
+float scale = 1.f;
+Vector2 Game_getMouseCanvasPosition() {
+    Vector2 globalPos = GetMousePosition();
+    globalPos.x -= dest.x;
+    globalPos.y -= dest.y;
+    globalPos.x /= scale;
+    globalPos.y /= scale;
+    return globalPos;
+}
+void Game_run() {
+    while (running && !WindowShouldClose()) {
+        BeginTextureMode(canvas);
+        ClearBackground(DARKGRAY);
+        {
+            Game_draw();
+        }
+
+        EndTextureMode();
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        {
+            Rectangle source = {0, 0, canvas.texture.width,
+                                -canvas.texture.height};
+            float yScale = (float)GetScreenHeight() / canvas.texture.height;
+            float xScale = (float)GetScreenWidth() / canvas.texture.width;
+            scale = xScale > yScale ? yScale : xScale;
+            float destWidth = canvas.texture.width * scale;
+            float destHeight = canvas.texture.height * scale;
+
+            dest = (Rectangle){(float)GetScreenWidth() / 2 - destWidth / 2,
+                               (float)GetScreenHeight() / 2 - destHeight / 2,
+                               destWidth, destHeight};
+            DrawTexturePro(canvas.texture, source, dest, (Vector2){0, 0}, 0.f,
+                           WHITE);
+        }
+        EndDrawing();
+
+        Game_update();
+    }
+    postGameLoop();
+
+    CloseWindow();
 }
 
 void Game_draw() {

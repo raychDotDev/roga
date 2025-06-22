@@ -24,8 +24,8 @@ void ScreenMain_load() {
     button = (GuiButton){
         .position = {100, 100},
         .size = {100, 50},
-        .text = "testing shit",
-        .fontSize = 20,
+        .text = "гойда!",
+        .fontSize = GUI_FONTSIZE_DEFAULT,
         .activeColor = WHITE,
         .idleColor = BLACK,
     };
@@ -38,8 +38,8 @@ void ScreenMain_load() {
 }
 
 void ScreenMain_draw() {
-    GUI_Button(&button, GetMousePosition());
-    GUI_Checkbox(&checkbox, GetMousePosition());
+    GUI_Button(&button, Game_getMouseCanvasPosition());
+    GUI_Checkbox(&checkbox, Game_getMouseCanvasPosition());
     if (checkbox.checked) {
         DrawRectangle(0, 0, 10, 10, RED);
     }
