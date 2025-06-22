@@ -1,8 +1,10 @@
 #include "game.h"
 #include "assetLoader.h"
 #include "config.h"
-#include "gui.h"
+#include "screen.h"
 #include <raylib.h>
+
+Screen *currentScreen = NULL;
 
 int prevWindowWidth;
 int prevWindowHeight;
@@ -13,9 +15,12 @@ int running = 1;
 
 void Game_Draw();
 void Game_Update();
+void PreGameLoop();
+void PostGameLoop();
 
-void Game_Init() {
-    InitWindow(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight, CONFIG_DEFAULT.title);
+void Game_init() {
+    InitWindow(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight,
+               CONFIG_DEFAULT.title);
     const char *saves_path = Config_getUserConfigDir();
     MakeDirectory(saves_path);
     Config_Parse();
@@ -34,6 +39,7 @@ void Game_Init() {
     }
     SetExitKey(KEY_NULL);
     SetTraceLogLevel(LOG_ALL);
+    PreGameLoop();
 }
 
 void Game_toggleMaximized() {
@@ -41,34 +47,32 @@ void Game_toggleMaximized() {
     CONFIG.maximized = maximized;
 }
 
-void PreGameLoop();
-void PostGameLoop();
-
-void Game_Run() {
-	PreGameLoop();
+void Game_run() {
     while (running && !WindowShouldClose()) {
         BeginDrawing();
-            ClearBackground(BLACK);
+        ClearBackground(BLACK);
         {
             Game_Draw();
         }
         EndDrawing();
         Game_Update();
     }
-	PostGameLoop();
+    PostGameLoop();
 
     CloseWindow();
 }
 
-void PreGameLoop() {
-	ResourceLoader_LoadFont();
-}
+void PreGameLoop() { ResourceLoader_LoadFont(); }
+
 void PostGameLoop() {
+    Game_setCurrentScreen(NULL);
     Config_Save();
-	ResourceLoader_UnloadFont();
+    ResourceLoader_UnloadFont();
 }
 
 void Game_Draw() {
+    if (currentScreen->draw != NULL)
+        currentScreen->draw();
 }
 
 void Game_Update() {
@@ -85,6 +89,41 @@ void Game_Update() {
             CONFIG.windowHeight = prevWindowHeight;
         }
     }
+    if (currentScreen->update != NULL)
+        currentScreen->update();
 }
 
-void Game_Stop() { running = 0; }
+void Game_stop() { running = 0; }
+
+void Game_setCurrentScreen(Screen *value) {
+    TraceLog(LOG_TRACE, "Setting screen...");
+    if (currentScreen != NULL) {
+        TraceLog(LOG_TRACE, "currentScreen is not NULL, unloading...");
+        if (currentScreen->unload != NULL) {
+            currentScreen->unload();
+            TraceLog(LOG_TRACE, "currentScreen unloaded!");
+        } else {
+            TraceLog(LOG_TRACE, "currentScreen->unload is NULL, skipping...");
+        }
+        MemFree(currentScreen);
+        currentScreen = NULL;
+        TraceLog(LOG_TRACE, "currentScreen pointer is cleaned!");
+    } else {
+        TraceLog(LOG_TRACE, "currentScreen is NULL, skipping...");
+    }
+
+    currentScreen = value;
+
+    TraceLog(LOG_TRACE, "currentScreen is set to new value, loading...");
+    if (currentScreen != NULL) {
+        if (currentScreen->load != NULL) {
+            currentScreen->load();
+            TraceLog(LOG_TRACE, "currentScreen loaded!");
+        } else {
+            TraceLog(LOG_TRACE, "currentScreen->load is NULL, skipping...");
+        }
+    } else {
+        TraceLog(LOG_TRACE, "currentScreen is NULL, skipping...");
+    }
+    TraceLog(LOG_TRACE, "currentScreen is setted up!");
+}
