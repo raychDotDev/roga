@@ -1,6 +1,6 @@
 #pragma once
 
-#include "screen.h"
+#include "screens/screen.h"
 #include <raylib.h>
 
 // use AFTER Game_Init, so you will be able to 

@@ -1,5 +1,4 @@
 #include "assetLoader.h"
-#include "config.h"
 #include <raylib.h>
 #include <string.h>
 

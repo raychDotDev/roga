@@ -1,10 +1,8 @@
-#include "screenMain.h"
-#include "assetLoader.h"
-#include "config.h"
+#include "screens/screenMain.h"
 #include "game.h"
 #include "gui.h"
-#include "screen.h"
-#include "screenGame.h"
+#include "screens/screen.h"
+#include "screens/screenGame.h"
 #include <raylib.h>
 
 GuiButton button;

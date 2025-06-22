@@ -40,7 +40,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 clean:
 	rm -f $(BINDIR)/*.* $(OBJDIR)/*.o $(OBJDIR)/**/*.o
 	rm -rf $(OBJDIR)/*.* $(OBJDIR)/**/*.*
-	rm -rf $(ASSETDIR)/*.* $(ASSETDIR)/**/*.* || true
+	rm -rf $(BINDIR)/assets/*.* $(BINDIR)/assets/**/*.* || true
 
 run:
 	$(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)

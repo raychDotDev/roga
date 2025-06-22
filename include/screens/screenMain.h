@@ -1,5 +1,4 @@
-#include "gui.h"
-#include "screen.h"
+#include "screens/screen.h"
 
 Screen *ScreenMain_get();
 void ScreenMain_load();

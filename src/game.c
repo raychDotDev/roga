@@ -1,7 +1,7 @@
 #include "game.h"
 #include "assetLoader.h"
 #include "config.h"
-#include "screen.h"
+#include "screens/screen.h"
 #include <raylib.h>
 #include <raymath.h>
 

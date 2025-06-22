@@ -1,4 +1,4 @@
-#include "screenMain.h"
+#include "screens/screenMain.h"
 #include "game.h"
 
 int main() {

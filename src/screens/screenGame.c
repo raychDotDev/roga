@@ -1,5 +1,5 @@
-#include "screenGame.h"
-#include "screen.h"
+#include "screens/screenGame.h"
+#include "screens/screen.h"
 #include <raylib.h>
 
 Screen *ScreenGame_get() {
