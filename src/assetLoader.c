@@ -17,3 +17,7 @@ void ResourceLoader_LoadFont() {
 
 	SetTextureFilter(RES_FONT.texture, TEXTURE_FILTER_POINT);
 }
+
+void ResourceLoader_UnloadFont() {
+	UnloadFont(RES_FONT);
+}

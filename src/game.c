@@ -15,7 +15,9 @@ void Game_Draw();
 void Game_Update();
 
 void Game_Init() {
-    InitWindow(640, 320, "game");
+    InitWindow(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight, CONFIG_DEFAULT.title);
+    const char *saves_path = Config_getUserConfigDir();
+    MakeDirectory(saves_path);
     Config_Parse();
     Config_Save();
     SetWindowSize(CONFIG.windowWidth, CONFIG.windowHeight);
@@ -27,8 +29,6 @@ void Game_Init() {
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(CONFIG.targetFPS);
     SetWindowMinSize(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight);
-    const char *saves_path = Config_getUserConfigDir();
-    MakeDirectory(saves_path);
     if (CONFIG.maximized) {
         MaximizeWindow();
     }
@@ -41,22 +41,34 @@ void Game_toggleMaximized() {
     CONFIG.maximized = maximized;
 }
 
+void PreGameLoop();
+void PostGameLoop();
+
 void Game_Run() {
+	PreGameLoop();
     while (running && !WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(BLACK);
+            ClearBackground(BLACK);
         {
             Game_Draw();
         }
         EndDrawing();
         Game_Update();
     }
-    Config_Save();
+	PostGameLoop();
+
     CloseWindow();
 }
 
+void PreGameLoop() {
+	ResourceLoader_LoadFont();
+}
+void PostGameLoop() {
+    Config_Save();
+	ResourceLoader_UnloadFont();
+}
+
 void Game_Draw() {
-    DrawTextEx(RES_FONT, "HARRO", (Vector2){10, 10}, 20, 2, WHITE);
 }
 
 void Game_Update() {

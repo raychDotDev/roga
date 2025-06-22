@@ -8,3 +8,4 @@ static const char* FONTS_DIR = "fonts/";
 extern Font RES_FONT;
 
 void ResourceLoader_LoadFont();
+void ResourceLoader_UnloadFont();
