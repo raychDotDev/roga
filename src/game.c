@@ -13,10 +13,10 @@ int maximized = 0;
 
 int running = 1;
 
-void Game_Draw();
-void Game_Update();
-void PreGameLoop();
-void PostGameLoop();
+void Game_draw();
+void Game_update();
+void preGameLoop();
+void postGameLoop();
 
 void Game_init() {
     InitWindow(CONFIG_DEFAULT.windowWidth, CONFIG_DEFAULT.windowHeight,
@@ -39,7 +39,7 @@ void Game_init() {
     }
     SetExitKey(KEY_NULL);
     SetTraceLogLevel(LOG_ALL);
-    PreGameLoop();
+    preGameLoop();
 }
 
 void Game_toggleMaximized() {
@@ -52,30 +52,30 @@ void Game_run() {
         BeginDrawing();
         ClearBackground(BLACK);
         {
-            Game_Draw();
+            Game_draw();
         }
         EndDrawing();
-        Game_Update();
+        Game_update();
     }
-    PostGameLoop();
+    postGameLoop();
 
     CloseWindow();
 }
 
-void PreGameLoop() { ResourceLoader_LoadFont(); }
+void preGameLoop() { ResourceLoader_LoadFont(); }
 
-void PostGameLoop() {
+void postGameLoop() {
     Game_setCurrentScreen(NULL);
     Config_Save();
     ResourceLoader_UnloadFont();
 }
 
-void Game_Draw() {
+void Game_draw() {
     if (currentScreen->draw != NULL)
         currentScreen->draw();
 }
 
-void Game_Update() {
+void Game_update() {
     if ((!maximized && IsWindowMaximized()) ||
         (maximized && !IsWindowMaximized())) {
         Game_toggleMaximized();
