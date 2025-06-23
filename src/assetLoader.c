@@ -69,6 +69,8 @@ void ResourceLoader_loadTextures() {
                 .key = key,
                 .keysize = strlen(key),
             };
+            SetTextureFilter(textureMap[textureMapCount].texture,
+                             TEXTURE_FILTER_POINT);
             textureMapCount++;
             TraceLog(LOG_TRACE, "Loaded texture with key %s", key);
         }

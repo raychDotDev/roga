@@ -1,8 +1,6 @@
 #pragma once
 
-typedef struct Screen Screen;
-
-typedef struct Screen {
+typedef struct _screen {
     void (*load)();
     void (*unload)();
     void (*update)();

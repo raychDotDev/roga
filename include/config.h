@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct GameConfiguration {
+typedef struct _gameConfig {
     char title[64];
 
     int windowWidth;
