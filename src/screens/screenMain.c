@@ -21,16 +21,16 @@ Screen *ScreenMain_get() {
 
 void ScreenMain_load() {
     button = (GuiButton){
-        .position = {100, 100},
-        .size = {100, 50},
+        .position = {10, 10},
+        .size = {60, 20},
         .text = "гойда!",
         .fontSize = GUI_FONTSIZE_DEFAULT,
         .activeColor = WHITE,
         .idleColor = BLACK,
     };
     checkbox = (GuiChechbox){
-        .position = {200, 200},
-        .size = {50, 50},
+        .position = {20, 40},
+        .size = {20, 20},
         .checkedColor = WHITE,
         .uncheckedColor = BLACK,
     };
@@ -43,7 +43,7 @@ void ScreenMain_draw() {
         DrawRectangle(0, 0, 10, 10, RED);
     }
     if (button.down) {
-        DrawRectangle(400, 400, 10, 10, BLUE);
+        DrawRectangle(200, 100, 10, 10, BLUE);
     }
 }
 

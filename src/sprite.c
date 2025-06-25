@@ -29,7 +29,7 @@ void Sprite_update(Sprite *this) {
     }
     if (this->playing) {
         if (time - this->timer >= Sprite_getFrameTime(this)) {
-            this->currentFrame ++;
+            this->currentFrame++;
             this->timer = time;
         }
     }
@@ -49,11 +49,23 @@ Rectangle Sprite_getFrameRec(Sprite *this) {
     Rectangle rect = {};
     int frameWidth = this->atlas.width / (this->cols == 0 ? 1 : this->cols);
     int frameHeight = this->atlas.height / (this->rows == 0 ? 1 : this->rows);
-    rect.x = frameWidth * this->currentCol;
-    rect.y = frameHeight * this->currentRow;
+    rect.x = 0;
+    rect.y = 0;
     rect.width = frameWidth;
     rect.height = frameHeight;
     return rect;
+}
+
+Rectangle Sprite_getFrameRecXY(Sprite *this, SpriteFrame frame) {
+    Rectangle rect = Sprite_getFrameRec(this);
+    rect.x = frame.col * rect.width;
+    rect.x = frame.row * rect.width;
+    return rect;
+}
+
+Rectangle Sprite_getCurrentFrameRec(Sprite *this) {
+    return Sprite_getFrameRecXY(
+        this, (SpriteFrame){this->currentCol, this->currentRow});
 }
 
 Rectangle Sprite_getFrameRecBySeq(Sprite *this, SpriteFrame pos) {

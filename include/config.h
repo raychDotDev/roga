@@ -20,8 +20,8 @@ typedef struct _gameConfig {
 // Default game configuration
 static const GameConfiguration CONFIG_DEFAULT = {
     .title = "Game",
-    .windowWidth = 720,
-    .windowHeight = 480,
+    .windowWidth = 320,
+    .windowHeight = 200,
     .targetFPS = 120,
     .maximized = 0,
 };
