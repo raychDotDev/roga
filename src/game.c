@@ -1,6 +1,7 @@
-#include "app.h"
+#include "game.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
@@ -10,7 +11,7 @@
 #include <stdlib.h>
 
 Game *Game_new(v2i size, v2i canvasSize) {
-    Game *app = (Game *)malloc(sizeof(Game));
+    Game *game = (Game *)malloc(sizeof(Game));
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init Error: %s\n",
                      SDL_GetError());
@@ -20,10 +21,10 @@ Game *Game_new(v2i size, v2i canvasSize) {
                     "Initialized all systems successfully\n");
     }
 
-    app->window =
+    game->window =
         SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                          size.x, size.y, SDL_WINDOW_RESIZABLE);
-    if (app->window == NULL) {
+    if (game->window == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_CreateWindow Error: %s\n",
                      SDL_GetError());
     } else {
@@ -31,8 +32,8 @@ Game *Game_new(v2i size, v2i canvasSize) {
                     "Initialized window successfully\n");
     }
 
-    app->renderer = SDL_CreateRenderer(app->window, -1, SDL_RENDERER_SOFTWARE);
-    if (app->renderer == NULL) {
+    game->renderer = SDL_CreateRenderer(game->window, -1, SDL_RENDERER_SOFTWARE);
+    if (game->renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_CreateRenderer Error: %s\n",
                      SDL_GetError());
     } else {
@@ -40,11 +41,11 @@ Game *Game_new(v2i size, v2i canvasSize) {
                     "Renderer initialized successfully\n");
     }
 
-    app->canvas =
+    game->canvas =
         SDL_CreateRGBSurface(0, canvasSize.x, canvasSize.y, 32, 0, 0, 0, 0);
-    app->texture = SDL_CreateTextureFromSurface(app->renderer, app->canvas);
-    app->running = b_true;
-    return app;
+    game->texture = SDL_CreateTextureFromSurface(game->renderer, game->canvas);
+    game->running = b_true;
+    return game;
 }
 
 void Game_destroy(Game *ctx) {
@@ -58,7 +59,7 @@ void Game_destroy(Game *ctx) {
 
 void Game_stop(Game *ctx) { ctx->running = b_false; }
 
-void App_pollEvent(Game *ctx) {
+void Game_pollEvent(Game *ctx) {
     SDL_Event e;
     SDL_PollEvent(&e);
     switch (e.type) {
@@ -74,7 +75,7 @@ void App_pollEvent(Game *ctx) {
 
 void Game_run(Game *ctx) {
     while (ctx->running) {
-        App_pollEvent(ctx);
+        Game_pollEvent(ctx);
         SDL_FillRect(ctx->canvas, NULL,
                      SDL_MapRGB(ctx->canvas->format, 60, 60, 60));
 

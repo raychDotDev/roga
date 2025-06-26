@@ -46,3 +46,4 @@ typedef struct {
 } f32rect;
 
 typedef enum { b_false = 0, b_true = 1 } bool_t;
+
