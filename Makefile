@@ -1,7 +1,7 @@
 CC=clang
-CFLAGS=-g -Wall -Werror -Wno-implicit-function-declaration --target=x86_64-w64-mingw32 -Iinclude -static -g #-mwindows
+CFLAGS=-g -Wall -Werror -Wno-implicit-function-declaration --target=x86_64-w64-mingw32 -Iinclude -static -g -municode #-mwindows
 
-LDFLAGS=-Iinclude -Llib -lraylib -lgdi32 -lopengl32 -lwinmm
+LDFLAGS=-Iinclude -Llib -lSDL2.dll -lSDL2 -lSDL2_ttf -lSDL2_image -lgdi32 -lopengl32 -lwinmm
 TARGET=game
 
 EXTENSION=.exe

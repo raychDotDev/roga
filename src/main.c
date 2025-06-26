@@ -1,9 +1,6 @@
-#include "screens/screenMain.h"
-#include "game.h"
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
 
-int main() {
-    Game_init();
-    Game_setCurrentScreen(ScreenMain_get());
-    Game_run();
-    return 0;
+int wmain() {
+	return 0;
 }
