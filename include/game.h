@@ -1,16 +1,18 @@
 #pragma once
 
+#include "screen.h"
 #include "typedef.h"
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_video.h>
 
-typedef struct {
+typedef struct Game {
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Surface *canvas;
     SDL_Texture *texture;
+	Screen* screen;
     bool_t running;
 } Game;
 
@@ -38,3 +40,5 @@ bool_t Game_mousePressed(i32 mouseButton);
 bool_t Game_mouseReleased(i32 mouseButton);
 bool_t Game_mouseDown(i32 mouseButton);
 bool_t Game_mouseUp(i32 mouseButton);
+
+void Game_setScreen(Game* ctx, Screen* value);
