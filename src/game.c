@@ -8,9 +8,15 @@
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_video.h>
 #include <stdlib.h>
+
+#define KEY_STATE_SIZE 512
+
+u8 prevKeys[KEY_STATE_SIZE];
+u8 currentKeys[KEY_STATE_SIZE];
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
@@ -48,6 +54,9 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
         SDL_CreateRGBSurface(0, canvasSize.x, canvasSize.y, 32, 0, 0, 0, 0);
     game->texture = SDL_CreateTextureFromSurface(game->renderer, game->canvas);
     game->running = b_true;
+    const u8 *state = SDL_GetKeyboardState(NULL);
+    memcpy(currentKeys, state, KEY_STATE_SIZE);
+    memcpy(prevKeys, currentKeys, KEY_STATE_SIZE);
     return game;
 }
 
@@ -99,6 +108,9 @@ void Game_pollEvent(Game *ctx) {
         }
     } break;
     }
+    const u8 *state = SDL_GetKeyboardState(NULL);
+    memcpy(prevKeys, currentKeys, KEY_STATE_SIZE);
+    memcpy(currentKeys, state, KEY_STATE_SIZE);
 }
 
 void Game_run(Game *ctx) {
@@ -133,3 +145,12 @@ void Game_run(Game *ctx) {
     }
     Game_destroy(ctx);
 }
+
+bool_t Game_keyPressed(SDL_Scancode code) {
+    return (currentKeys[code] && !prevKeys[code]);
+}
+bool_t Game_keyReleased(SDL_Scancode code) {
+    return (!currentKeys[code] && prevKeys[code]);
+}
+bool_t Game_keyDown(SDL_Scancode code) { return (currentKeys[code]); }
+bool_t Game_keyUp(SDL_Scancode code) { return (!currentKeys[code]); }
