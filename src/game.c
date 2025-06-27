@@ -5,6 +5,7 @@
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_log.h>
+#include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
@@ -17,6 +18,11 @@
 
 u8 prevKeys[KEY_STATE_SIZE];
 u8 currentKeys[KEY_STATE_SIZE];
+u32 prevMouse = 0;
+v2i prevMousePos = {};
+u32 currentMouse = 0;
+v2i currentMousePos = {};
+v2i mouseWheel = {};
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
@@ -57,6 +63,10 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     const u8 *state = SDL_GetKeyboardState(NULL);
     memcpy(currentKeys, state, KEY_STATE_SIZE);
     memcpy(prevKeys, currentKeys, KEY_STATE_SIZE);
+    u32 mouse = SDL_GetMouseState(&currentMousePos.x, &currentMousePos.y);
+    prevMouse = mouse;
+    prevMousePos = currentMousePos;
+    currentMouse = mouse;
     return game;
 }
 
@@ -82,6 +92,7 @@ void Game_changeCanvasSize(Game *ctx, v2i size) {
 void Game_pollEvent(Game *ctx) {
     SDL_Event e;
     SDL_PollEvent(&e);
+    mouseWheel = (v2i){0, 0};
     switch (e.type) {
     case SDL_QUIT: {
         Game_stop(ctx);
@@ -107,10 +118,17 @@ void Game_pollEvent(Game *ctx) {
             pending_maximize = b_false;
         }
     } break;
+    case SDL_MOUSEWHEEL: {
+        mouseWheel.x = e.wheel.x;
+        mouseWheel.y = e.wheel.y;
+    } break;
     }
     const u8 *state = SDL_GetKeyboardState(NULL);
     memcpy(prevKeys, currentKeys, KEY_STATE_SIZE);
     memcpy(currentKeys, state, KEY_STATE_SIZE);
+    prevMouse = currentMouse;
+    prevMousePos = currentMousePos;
+    currentMouse = SDL_GetMouseState(&currentMousePos.x, &currentMousePos.y);
 }
 
 void Game_run(Game *ctx) {
@@ -149,8 +167,39 @@ void Game_run(Game *ctx) {
 bool_t Game_keyPressed(SDL_Scancode code) {
     return (currentKeys[code] && !prevKeys[code]);
 }
+
 bool_t Game_keyReleased(SDL_Scancode code) {
     return (!currentKeys[code] && prevKeys[code]);
 }
+
 bool_t Game_keyDown(SDL_Scancode code) { return (currentKeys[code]); }
+
 bool_t Game_keyUp(SDL_Scancode code) { return (!currentKeys[code]); }
+
+v2i Game_mousePos() { return currentMousePos; }
+v2i Game_mouseDelta() {
+    return (v2i){prevMousePos.x - currentMousePos.x,
+                 prevMousePos.y - currentMousePos.y};
+}
+
+v2i Game_mouseWheel() {
+	return mouseWheel;
+}
+
+bool_t Game_mousePressed(i32 mouseButton) {
+    return (currentMouse & SDL_BUTTON(mouseButton)) &&
+           !(prevMouse & SDL_BUTTON(mouseButton));
+}
+
+bool_t Game_mouseReleased(i32 mouseButton) {
+    return !(currentMouse & SDL_BUTTON(mouseButton)) &&
+           (prevMouse & SDL_BUTTON(mouseButton));
+}
+
+bool_t Game_mouseDown(i32 mouseButton) {
+    return (currentMouse & SDL_BUTTON(mouseButton));
+}
+
+bool_t Game_mouseUp(i32 mouseButton) {
+    return !(currentMouse & SDL_BUTTON(mouseButton));
+}
