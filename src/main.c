@@ -1,10 +1,13 @@
+#include "config.h"
+#include "typedef.h"
 #define SDL_MAIN_HANDLED
 #include "game.h"
-#include "string.h"
 #include <SDL2/SDL.h>
 
 int wmain() {
-    Game *game = Game_new((v2i){800, 600}, (v2i){720, 480});
+    Config_load();
+    Game *game = Game_new(CONFIG.title, CONFIG.windowSize, CONFIG.canvasSize);
     Game_run(game);
+    Config_save();
     return 0;
 }

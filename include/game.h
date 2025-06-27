@@ -13,9 +13,10 @@ typedef struct {
 	bool_t running;
 } Game;
 
-Game* Game_new(v2i size, v2i canvasSize);
+Game* Game_new(const char* title, v2i size, v2i canvasSize);
 void Game_destroy(Game* ctx);
 
+void Game_changeCanvasSize(Game* ctx, v2i size);
 void Game_run(Game* ctx);
 
 void Game_stop(Game* ctx);

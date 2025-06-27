@@ -1,7 +1,9 @@
 #include "game.h"
+#include "config.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_log.h>
 #include <SDL2/SDL_pixels.h>
 #include <SDL2/SDL_rect.h>
@@ -10,7 +12,7 @@
 #include <SDL2/SDL_video.h>
 #include <stdlib.h>
 
-Game *Game_new(v2i size, v2i canvasSize) {
+Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init Error: %s\n",
@@ -32,7 +34,8 @@ Game *Game_new(v2i size, v2i canvasSize) {
                     "Initialized window successfully\n");
     }
 
-    game->renderer = SDL_CreateRenderer(game->window, -1, SDL_RENDERER_SOFTWARE);
+    game->renderer =
+        SDL_CreateRenderer(game->window, -1, SDL_RENDERER_SOFTWARE);
     if (game->renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_CreateRenderer Error: %s\n",
                      SDL_GetError());
@@ -59,21 +62,49 @@ void Game_destroy(Game *ctx) {
 
 void Game_stop(Game *ctx) { ctx->running = b_false; }
 
+void Game_changeCanvasSize(Game *ctx, v2i size) {
+    SDL_FreeSurface(ctx->canvas);
+    SDL_DestroyTexture(ctx->texture);
+    ctx->canvas = SDL_CreateRGBSurface(0, size.x, size.y, 32, 0, 0, 0, 0);
+    ctx->texture = SDL_CreateTextureFromSurface(ctx->renderer, ctx->canvas);
+    CONFIG.canvasSize = size;
+}
+
 void Game_pollEvent(Game *ctx) {
     SDL_Event e;
     SDL_PollEvent(&e);
     switch (e.type) {
-    case SDL_KEYDOWN:
-        if (e.key.keysym.sym == SDLK_ESCAPE)
-            Game_stop(ctx);
-        break;
-    case SDL_QUIT:
+    case SDL_QUIT: {
         Game_stop(ctx);
-        break;
+    } break;
+
+    case SDL_WINDOWEVENT: {
+        static bool_t pending_maximize = b_false;
+
+        if (e.window.event == SDL_WINDOWEVENT_MAXIMIZED) {
+            CONFIG.maximized = b_true;
+            pending_maximize = b_false;
+        } else if (e.window.event == SDL_WINDOWEVENT_RESTORED) {
+            CONFIG.maximized = b_false;
+        } else if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
+            if (!CONFIG.maximized && !pending_maximize) {
+                v2i resized = {0};
+                SDL_GetWindowSize(ctx->window, &resized.x, &resized.y);
+                CONFIG.windowSize = resized;
+            }
+        } else if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+            pending_maximize = b_true;
+        } else {
+            pending_maximize = b_false;
+        }
+    } break;
     }
 }
 
 void Game_run(Game *ctx) {
+    if (CONFIG.maximized) {
+        SDL_MaximizeWindow(ctx->window);
+    }
     while (ctx->running) {
         Game_pollEvent(ctx);
         SDL_FillRect(ctx->canvas, NULL,
