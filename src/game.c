@@ -1,5 +1,6 @@
 #include "game.h"
 #include "config.h"
+#include "time_utils.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -24,9 +25,16 @@ v2i prevMousePos = {};
 u32 currentMouse = 0;
 v2i currentMousePos = {};
 v2i mouseWheel = {};
+f32 timerOld = 0.f;
+f32 timerNow = 0.f;
+f32 frameTime = 0.f;
+#define fpsBufferSize 20 
+i32 fps[fpsBufferSize] = {};
+i32 fpsIndex = 0;
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
+    game->screen = NULL;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init Error: %s\n",
                      SDL_GetError());
@@ -90,6 +98,8 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     prevMousePos = currentMousePos;
     currentMouse = mouse;
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Fetched initial mouse state\n");
+    timerNow = SDL_GetTicks64();
+    timerOld = timerNow;
     return game;
 }
 
@@ -199,9 +209,18 @@ void Game_run(Game *ctx) {
     if (CONFIG.maximized) {
         SDL_MaximizeWindow(ctx->window);
     }
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Started game context\n");
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Target framerate is %d\n",
+                CONFIG.targetFPS);
     while (ctx->running) {
+        timerOld = timerNow;
         Game_pollEvent(ctx);
         Game_render(ctx);
+        SDL_Delay((u32)((1.f / CONFIG.targetFPS) * 1000));
+        timerNow = Time_getElapsedSeconds();
+        frameTime = (timerNow - timerOld);
+        fps[fpsIndex] = (i32)(1.f / Game_getFrameTime());
+        fpsIndex = (fpsIndex + 1) % fpsBufferSize;
     }
     Game_destroy(ctx);
 }
@@ -265,3 +284,15 @@ void Game_setScreen(Game *ctx, Screen *value) {
     }
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Screen changed successfully\n");
 }
+
+i32 Game_getFPS() {
+	i32 res = 0;
+    for (i32 i = 0; i < fpsBufferSize; i++) {
+		res += fps[i];
+    }
+	res /= fpsBufferSize;
+    return res;
+}
+void Game_setTargetFPS(i32 value) { CONFIG.targetFPS = value; }
+
+f32 Game_getFrameTime() { return frameTime; }

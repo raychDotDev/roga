@@ -18,9 +18,5 @@ void ScreenMain_get(Screen *out) {
 
 void sm_load(Game *ctx) {}
 void sm_unload(Game *ctx) {}
-void sm_update(Game *ctx) {
-	if (Game_keyPressed(SDL_SCANCODE_SPACE)) {
-		printf("hi\n");
-	}
-}
+void sm_update(Game *ctx) {}
 void sm_render(Game *ctx) {}

@@ -16,6 +16,10 @@ typedef struct Game {
     bool_t running;
 } Game;
 
+i32 Game_getFPS();
+void Game_setTargetFPS(i32 value);
+f32 Game_getFrameTime();
+
 Game *Game_new(const char *title, v2i size, v2i canvasSize);
 void Game_destroy(Game *ctx);
 
