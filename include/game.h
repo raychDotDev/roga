@@ -10,7 +10,6 @@
 typedef struct Game {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Surface *canvas;
     SDL_Texture *texture;
 	Screen* screen;
     bool_t running;

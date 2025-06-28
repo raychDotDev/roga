@@ -28,14 +28,13 @@ i32 timerOld = 0;
 i32 timerNow = 0;
 f32 frameTime = 0;
 
-#define fpsBufferSize 30
+#define fpsBufferSize 20
 
 i32 fps[fpsBufferSize] = {};
 i32 fpsIndex = 0;
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
-    game->canvas = NULL;
     game->texture = NULL;
     game->screen = NULL;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -59,8 +58,8 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
                     "Initialized window successfully\n");
     }
 
-    game->renderer =
-        SDL_CreateRenderer(game->window, -1, SDL_RENDERER_SOFTWARE);
+    game->renderer = SDL_CreateRenderer(
+        game->window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_TARGETTEXTURE);
     if (game->renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                      "SDL_CreateRenderer Error: %s\n", SDL_GetError());
@@ -91,8 +90,6 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
 void Game_destroy(Game *ctx) {
     Game_setScreen(ctx, NULL);
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unloaded screen\n");
-    SDL_FreeSurface(ctx->canvas);
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unloaded canvas\n");
     SDL_DestroyTexture(ctx->texture);
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Unloaded texture\n");
     SDL_DestroyRenderer(ctx->renderer);
@@ -111,13 +108,10 @@ void Game_stop(Game *ctx) {
 }
 
 void Game_setCanvasSize(Game *ctx, v2i size) {
-    if (ctx->canvas != NULL)
-        SDL_FreeSurface(ctx->canvas);
     if (ctx->texture != NULL)
         SDL_DestroyTexture(ctx->texture);
-    ctx->canvas = SDL_CreateRGBSurfaceWithFormat(0, size.x, size.y, 32,
-                                                 SDL_PIXELFORMAT_RGB888);
-    ctx->texture = SDL_CreateTextureFromSurface(ctx->renderer, ctx->canvas);
+    ctx->texture = SDL_CreateTexture(ctx->renderer, SDL_PIXELFORMAT_ARGB32,
+                                     SDL_TEXTUREACCESS_TARGET, size.x, size.y);
     CONFIG.canvasSize = size;
 }
 
@@ -168,28 +162,30 @@ void Game_pollEvent(Game *ctx) {
 }
 
 void Game_render(Game *ctx) {
-    SDL_FillRect(ctx->canvas, NULL,
-                 SDL_MapRGB(ctx->canvas->format, 60, 60, 60));
-    if (ctx->screen != NULL) {
-        ctx->screen->render(ctx);
+    SDL_SetRenderTarget(ctx->renderer, ctx->texture);
+    SDL_SetRenderDrawColor(ctx->renderer, 100, 100, 100, 255);
+    SDL_RenderClear(ctx->renderer);
+    {
+        if (ctx->screen != NULL) {
+            ctx->screen->render(ctx);
+        }
     }
-    SDL_UpdateTexture(ctx->texture, NULL, ctx->canvas->pixels,
-                      ctx->canvas->pitch);
-
+    SDL_SetRenderTarget(ctx->renderer, NULL);
+    SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(ctx->renderer);
     v2i windowSize = {};
     SDL_GetWindowSize(ctx->window, &windowSize.x, &windowSize.y);
-    v2i canvasSize = {ctx->canvas->w, ctx->canvas->h};
-    v2f scale = {(f32)windowSize.x / (f32)canvasSize.x,
-                 (f32)windowSize.y / (f32)canvasSize.y};
-    f32 s = scale.x > scale.y ? scale.y : scale.x;
+    v2i canvasSize = CONFIG.canvasSize;
+    f32 s = fminf((f32)windowSize.x / (f32)canvasSize.x,
+                  (f32)windowSize.y / (f32)canvasSize.y);
 
-    i32rect dest =
-        (i32rect){(v2i){windowSize.x / 2 - ((i32)(canvasSize.x * s) / 2),
-                        windowSize.y / 2 - ((i32)(canvasSize.y * s) / 2)},
-                  (v2i){canvasSize.x * s, canvasSize.y * s}};
+    i32rect dest = {.pos = {windowSize.x / 2 - (i32)(canvasSize.x * s) / 2,
+                            windowSize.y / 2 - (i32)(canvasSize.y * s) / 2},
+                    .size = {(i32)(canvasSize.x * s), (i32)(canvasSize.y * s)}};
 
-    SDL_RenderClear(ctx->renderer);
-    SDL_RenderCopy(ctx->renderer, ctx->texture, NULL, (SDL_Rect *)(&dest));
+    SDL_Rect d = {dest.pos.x, dest.pos.y, dest.size.x, dest.size.y};
+    SDL_RenderCopy(ctx->renderer, ctx->texture, NULL, &d);
+
     SDL_RenderPresent(ctx->renderer);
 }
 
@@ -290,14 +286,3 @@ f32 Game_getTime() { return timerNow; }
 void Game_setTargetFPS(i32 value) { CONFIG.targetFPS = value; }
 
 f32 Game_getFrameTime() { return frameTime; }
-
-void Game_setPixel(Game *ctx, v2u pos, u32 col) {
-    if (pos.x >= ctx->canvas->w || pos.y >= ctx->canvas->h) {
-        return;
-    }
-    SDL_Surface *surface = ctx->canvas;
-    u32 *const target_pixel =
-        (u32 *)((u8 *)surface->pixels + pos.y * surface->pitch +
-                pos.x * surface->format->BytesPerPixel);
-    *target_pixel = col;
-}
