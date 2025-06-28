@@ -1,6 +1,5 @@
 #include "game.h"
 #include "config.h"
-#include "time_utils.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -25,15 +24,19 @@ v2i prevMousePos = {};
 u32 currentMouse = 0;
 v2i currentMousePos = {};
 v2i mouseWheel = {};
-f32 timerOld = 0.f;
-f32 timerNow = 0.f;
-f32 frameTime = 0.f;
-#define fpsBufferSize 20 
+i32 timerOld = 0;
+i32 timerNow = 0;
+f32 frameTime = 0;
+
+#define fpsBufferSize 30
+
 i32 fps[fpsBufferSize] = {};
 i32 fpsIndex = 0;
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize) {
     Game *game = (Game *)malloc(sizeof(Game));
+    game->canvas = NULL;
+    game->texture = NULL;
     game->screen = NULL;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_Init Error: %s\n",
@@ -67,25 +70,7 @@ Game *Game_new(const char *title, v2i size, v2i canvasSize) {
                     "Renderer initialized successfully\n");
     }
 
-    game->canvas =
-        SDL_CreateRGBSurface(0, canvasSize.x, canvasSize.y, 32, 0, 0, 0, 0);
-    if (game->canvas == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Canvas was not loaded!\n");
-        return NULL;
-    } else {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Canvas was loaded successfully with size %dx%d\n",
-                    game->canvas->w, game->canvas->h);
-    }
-
-    game->texture = SDL_CreateTextureFromSurface(game->renderer, game->canvas);
-    if (game->texture == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Texture was not loaded!\n");
-        return NULL;
-    } else {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "Texture was loaded successfully\n");
-    }
+    Game_setCanvasSize(game, CONFIG.canvasSize);
     game->running = b_true;
 
     const u8 *state = SDL_GetKeyboardState(NULL);
@@ -125,10 +110,13 @@ void Game_stop(Game *ctx) {
     ctx->running = b_false;
 }
 
-void Game_changeCanvasSize(Game *ctx, v2i size) {
-    SDL_FreeSurface(ctx->canvas);
-    SDL_DestroyTexture(ctx->texture);
-    ctx->canvas = SDL_CreateRGBSurface(0, size.x, size.y, 32, 0, 0, 0, 0);
+void Game_setCanvasSize(Game *ctx, v2i size) {
+    if (ctx->canvas != NULL)
+        SDL_FreeSurface(ctx->canvas);
+    if (ctx->texture != NULL)
+        SDL_DestroyTexture(ctx->texture);
+    ctx->canvas = SDL_CreateRGBSurfaceWithFormat(0, size.x, size.y, 32,
+                                                 SDL_PIXELFORMAT_RGB888);
     ctx->texture = SDL_CreateTextureFromSurface(ctx->renderer, ctx->canvas);
     CONFIG.canvasSize = size;
 }
@@ -210,15 +198,18 @@ void Game_run(Game *ctx) {
         SDL_MaximizeWindow(ctx->window);
     }
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Started game context\n");
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Target framerate is %d\n",
-                CONFIG.targetFPS);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Target frameTime is %dms\n",
+                (i32)((1.f / CONFIG.targetFPS) * 1000));
     while (ctx->running) {
         timerOld = timerNow;
         Game_pollEvent(ctx);
         Game_render(ctx);
-        SDL_Delay((u32)((1.f / CONFIG.targetFPS) * 1000));
-        timerNow = Time_getElapsedSeconds();
-        frameTime = (timerNow - timerOld);
+        i32 target = CONFIG.targetFPS;
+        i32 delay = target == 0 ? 0 : (i32)((1.f / target) * 1000);
+        if (delay > 0)
+            SDL_Delay(delay);
+        timerNow = SDL_GetTicks();
+        frameTime = (timerNow - timerOld) * 0.001f;
         fps[fpsIndex] = (i32)(1.f / Game_getFrameTime());
         fpsIndex = (fpsIndex + 1) % fpsBufferSize;
     }
@@ -286,13 +277,27 @@ void Game_setScreen(Game *ctx, Screen *value) {
 }
 
 i32 Game_getFPS() {
-	i32 res = 0;
+    i32 res = 0;
     for (i32 i = 0; i < fpsBufferSize; i++) {
-		res += fps[i];
+        res += fps[i];
     }
-	res /= fpsBufferSize;
+    res /= fpsBufferSize;
     return res;
 }
+
+f32 Game_getTime() { return timerNow; }
+
 void Game_setTargetFPS(i32 value) { CONFIG.targetFPS = value; }
 
 f32 Game_getFrameTime() { return frameTime; }
+
+void Game_setPixel(Game *ctx, v2u pos, u32 col) {
+    if (pos.x >= ctx->canvas->w || pos.y >= ctx->canvas->h) {
+        return;
+    }
+    SDL_Surface *surface = ctx->canvas;
+    u32 *const target_pixel =
+        (u32 *)((u8 *)surface->pixels + pos.y * surface->pitch +
+                pos.x * surface->format->BytesPerPixel);
+    *target_pixel = col;
+}

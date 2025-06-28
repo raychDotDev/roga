@@ -1,7 +1,15 @@
-CC=clang
-CFLAGS=-Wall -Werror -Wno-implicit-function-declaration --target=x86_64-w64-mingw32 -Iinclude -static -g -municode #-mwindows
-
-LDFLAGS=-Iinclude -Llib -lSDL2.dll -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf -lwinmm -lgdi32
+CC=gcc
+CFLAGS += -Wall
+CFLAGS += -Werror 
+CFLAGS += -Wno-implicit-function-declaration 
+CFLAGS += -Iinclude 
+CFLAGS += -g 
+CFLAGS += -fopenmp 
+CFLAGS += -municode 
+CFLAGS += -static
+# CFLAGS += -O2
+SDL_LIBS=$(shell sdl2-config --static-libs) -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+LDFLAGS=-Iinclude $(SDL_LIBS)
 TARGET=game
 
 EXTENSION=.exe
@@ -10,7 +18,6 @@ BINDIR=./bin
 SRCDIR=./src
 OBJDIR=./obj
 INCDIR=./include
-LIBDIR=./lib
 ASSETDIR=./assets
 
 SRC=$(wildcard $(SRCDIR)/*.c $(SRCDIR)/**/*.c)
@@ -30,7 +37,6 @@ rebuild: clean $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(BINDIR)/$(TARGET)$(EXTENSION) $(CFLAGS) $(LDFLAGS)
-	cp $(LIBDIR)/*.dll $(BINDIR)/ || true
 	cp -R $(ASSETDIR)/ $(BINDIR)/
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
@@ -38,12 +44,12 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 clean:
-	rm -f $(BINDIR)/*.* $(OBJDIR)/*.o $(OBJDIR)/**/*.o
-	rm -rf $(OBJDIR)/*.* $(OBJDIR)/**/*.*
+	rm -r $(BINDIR)/*.* $(OBJDIR)/*.o $(OBJDIR)/**/*.o || true
+	rm -rf $(OBJDIR)/*.* $(OBJDIR)/**/*.* || true
 	rm -rf $(BINDIR)/assets/*.* $(BINDIR)/assets/**/*.* || true
 
 run:
 	$(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)
 
 debug:
-	lldb $(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)
+	gdb $(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)

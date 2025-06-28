@@ -1,8 +1,11 @@
 #include "config.h"
-#include <SDL2/SDL_log.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static const char* DATA_PATH = "\\Documents\\My Games\\roga\\";
+static const char* CONF_PATH = ".rogaconfig";
 
 Config CONFIG;
 char *getConfigPath() {

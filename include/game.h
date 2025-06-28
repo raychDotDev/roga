@@ -19,11 +19,12 @@ typedef struct Game {
 i32 Game_getFPS();
 void Game_setTargetFPS(i32 value);
 f32 Game_getFrameTime();
+f32 Game_getTime();
 
 Game *Game_new(const char *title, v2i size, v2i canvasSize);
 void Game_destroy(Game *ctx);
 
-void Game_changeCanvasSize(Game *ctx, v2i size);
+void Game_setCanvasSize(Game *ctx, v2i size);
 void Game_run(Game *ctx);
 
 void Game_stop(Game *ctx);
@@ -46,3 +47,5 @@ bool_t Game_mouseDown(i32 mouseButton);
 bool_t Game_mouseUp(i32 mouseButton);
 
 void Game_setScreen(Game* ctx, Screen* value);
+
+void Game_setPixel(Game*ctx, v2u pos, u32 col);

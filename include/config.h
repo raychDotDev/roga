@@ -2,9 +2,6 @@
 
 #include "typedef.h"
 
-static const char* DATA_PATH = "\\Documents\\My Games\\roga\\";
-static const char* CONF_PATH = ".rogaconfig";
-
 typedef struct {
 	const char* title;
 	v2i windowSize;
