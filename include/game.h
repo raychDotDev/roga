@@ -10,6 +10,7 @@
 typedef struct Game {
     SDL_Window *window;
     SDL_Renderer *renderer;
+    i32rect canvasRect;
     SDL_Texture *texture;
     Screen *screen;
     bool_t running;
@@ -39,6 +40,7 @@ static const i32 MOUSE_RIGHT = 3;
 v2i Game_mousePos();
 v2i Game_mouseDelta();
 v2i Game_mouseWheel();
+
 bool_t Game_mousePressed(i32 mouseButton);
 bool_t Game_mouseReleased(i32 mouseButton);
 bool_t Game_mouseDown(i32 mouseButton);
@@ -47,3 +49,7 @@ bool_t Game_mouseUp(i32 mouseButton);
 void Game_setScreen(Game *ctx, Screen *value);
 void Game_setTargetFPS(u32 val);
 void Game_setPixel(Game *ctx, v2u pos, u32 col);
+
+v2i Game_mouseToCanvas(Game *ctx);
+
+i32rect Game_canvasRect(Game *ctx);

@@ -24,8 +24,7 @@ void ScreenMain_get(Screen *out) {
     *out = res;
 }
 
-void sm_load(Game *ctx) {
-}
+void sm_load(Game *ctx) {}
 void sm_unload(Game *ctx) {}
 void sm_update(Game *ctx) {
     char title[32];
@@ -36,9 +35,9 @@ void sm_update(Game *ctx) {
     }
 }
 void sm_render(Game *ctx) {
-    for (u32 j = 0; j < CONFIG->canvasSize.x; j++) {
-        u8 v = 255;
-        SDL_SetRenderDrawColor(ctx->renderer, v, v, v, 255);
-        SDL_RenderDrawLine(ctx->renderer, j, 0, j, CONFIG->canvasSize.y - 1);
-    }
+    // for (u32 j = 0; j < CONFIG->canvasSize.x; j++) {
+    //     u8 v = 255;
+    //     SDL_SetRenderDrawColor(ctx->renderer, v, v, v, 255);
+    //     SDL_RenderDrawLine(ctx->renderer, j, 0, j, CONFIG->canvasSize.y - 1);
+    // }
 }

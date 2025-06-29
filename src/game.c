@@ -25,8 +25,10 @@ FrameTimer frameTimer = {};
 Game *Game_new() {
     Config_load();
     Game *game = (Game *)malloc(sizeof(Game));
+
     game->texture = NULL;
     game->screen = NULL;
+
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         SDL_Log("SDL_Init Error: %s\n", SDL_GetError());
         return NULL;
@@ -36,6 +38,7 @@ Game *Game_new() {
     game->window = SDL_CreateWindow(
         CONFIG->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         CONFIG->windowSize.x, CONFIG->windowSize.y, SDL_WINDOW_RESIZABLE);
+
     if (game->window == NULL) {
         SDL_Log("SDL_CreateWindow Error: %s\n", SDL_GetError());
         return NULL;
@@ -151,11 +154,13 @@ void Game_render(Game *ctx) {
     f32 s = fminf((f32)windowSize.x / (f32)canvasSize.x,
                   (f32)windowSize.y / (f32)canvasSize.y);
 
-    i32rect dest = {.pos = {windowSize.x / 2 - (i32)(canvasSize.x * s) / 2,
-                            windowSize.y / 2 - (i32)(canvasSize.y * s) / 2},
-                    .size = {(i32)(canvasSize.x * s), (i32)(canvasSize.y * s)}};
+    ctx->canvasRect =
+        (i32rect){.pos = {windowSize.x / 2 - (i32)(canvasSize.x * s) / 2,
+                          windowSize.y / 2 - (i32)(canvasSize.y * s) / 2},
+                  .size = {(i32)(canvasSize.x * s), (i32)(canvasSize.y * s)}};
 
-    SDL_Rect d = {dest.pos.x, dest.pos.y, dest.size.x, dest.size.y};
+    SDL_Rect d = {ctx->canvasRect.pos.x, ctx->canvasRect.pos.y,
+                  ctx->canvasRect.size.x, ctx->canvasRect.size.y};
     SDL_RenderCopy(ctx->renderer, ctx->texture, NULL, &d);
 
     SDL_RenderPresent(ctx->renderer);
@@ -252,3 +257,12 @@ f32 Game_getTime() { return frameTimer.timerNow; }
 f32 Game_getFrameTime() { return frameTimer.frameTime; }
 
 void Game_setTargetFPS(u32 val) { CONFIG->targetFPS = val; }
+
+v2i Game_mouseToCanvas(Game *ctx) {
+    v2i mp = Game_mousePos();
+    v2i canvasPos = ctx->canvasRect.pos;
+
+    return (v2i){mp.x + canvasPos.x, mp.y + canvasPos.y};
+}
+
+i32rect Game_canvasRect(Game *ctx) { return ctx->canvasRect; }

@@ -49,6 +49,7 @@ clean:
 
 run:
 	$(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)
-
+runme:
+	$(BINDIR)/$(TARGET)$(EXTENSION) --mapedit
 debug:
 	gdb $(BINDIR)/$(TARGET)$(EXTENSION) $(ARGS)
