@@ -28,7 +28,6 @@ init:
 	mkdir -p $(BINDIR)
 	mkdir -p $(OBJDIR)
 	mkdir -p $(INCDIR)
-	mkdir -p $(LIBDIR)
 	mkdir -p $(ASSETDIR)
 
 all: $(TARGET)

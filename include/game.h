@@ -11,16 +11,15 @@ typedef struct Game {
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-	Screen* screen;
+    Screen *screen;
     bool_t running;
 } Game;
 
 i32 Game_getFPS();
-void Game_setTargetFPS(i32 value);
 f32 Game_getFrameTime();
 f32 Game_getTime();
 
-Game *Game_new(const char *title, v2i size, v2i canvasSize);
+Game *Game_new();
 void Game_destroy(Game *ctx);
 
 void Game_setCanvasSize(Game *ctx, v2i size);
@@ -45,6 +44,6 @@ bool_t Game_mouseReleased(i32 mouseButton);
 bool_t Game_mouseDown(i32 mouseButton);
 bool_t Game_mouseUp(i32 mouseButton);
 
-void Game_setScreen(Game* ctx, Screen* value);
-
-void Game_setPixel(Game*ctx, v2u pos, u32 col);
+void Game_setScreen(Game *ctx, Screen *value);
+void Game_setTargetFPS(u32 val);
+void Game_setPixel(Game *ctx, v2u pos, u32 col);

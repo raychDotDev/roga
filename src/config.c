@@ -1,43 +1,48 @@
 #include "config.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_log.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-static const char* DATA_PATH = "\\Documents\\My Games\\roga\\";
-static const char* CONF_PATH = ".rogaconfig";
-
-Config CONFIG;
-char *getConfigPath() {
-    char *path = (char *)malloc(sizeof(char) * FILENAME_MAX);
-    strcpy(path, getenv("USERPROFILE"));
-    strcat(path, DATA_PATH);
-    strcat(path, CONF_PATH);
-    return path;
-}
+static const char *CONF_PATH = ".rogaconfig";
 
 void Config_load() {
-    char *path = getConfigPath();
-    FILE *conf = fopen(path, "rb");
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Loading config...\n");
+    CONFIG = (Config *)malloc(sizeof(Config));
+
+    FILE *conf = fopen(CONF_PATH, "rb");
+    SDL_Log("Loading config...\n");
     if (conf == NULL) {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
-                    "No config file, setting defaults\n");
-        CONFIG = CONFIG_DEFAULT;
+        SDL_Log("No config file, setting defaults\n");
+        *CONFIG = CONFIG_DEFAULT;
     } else {
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Reading config...\n");
-        fread(&CONFIG, sizeof(Config), 1, conf);
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Config is loaded\n");
+        SDL_Log("Reading config...\n");
+        fread(CONFIG, sizeof(Config), 1, conf);
+        SDL_Log("Config is loaded\n");
     }
+    SDL_Log("READED VALS:\n"
+            "\ttitle:%s\n"
+            "\twinsize:%dx%d\n"
+            "\tcanvassize:%dx%d\n"
+            "\tmaximized:%d\n"
+            "\ttargetFPS:%d\n",
+            CONFIG->title, CONFIG->windowSize.x, CONFIG->windowSize.y,
+            CONFIG->canvasSize.x, CONFIG->canvasSize.y, CONFIG->maximized,
+            CONFIG->targetFPS);
     fclose(conf);
-    free(path);
 }
 
 void Config_save() {
-    char *path = getConfigPath();
-    FILE *conf = fopen(path, "wb");
-    fwrite(&CONFIG, sizeof(Config), 1, conf);
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Config was saved to %s\n", path);
+    FILE *conf = fopen(CONF_PATH, "wb");
+    fwrite(CONFIG, sizeof(Config), 1, conf);
+    SDL_Log("Config was saved\n");
+    SDL_Log("SAVED VALS:\n"
+            "\ttitle:%s\n"
+            "\twinsize:%dx%d\n"
+            "\tcanvassize:%dx%d\n"
+            "\tmaximized:%d\n"
+            "\ttargetFPS:%d\n",
+            CONFIG->title, CONFIG->windowSize.x, CONFIG->windowSize.y,
+            CONFIG->canvasSize.x, CONFIG->canvasSize.y, CONFIG->maximized,
+            CONFIG->targetFPS);
     fclose(conf);
-    free(path);
+    free(CONFIG);
 }
